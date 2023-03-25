@@ -96,6 +96,8 @@ prompt_pure_preexec() {
 
 	# Shows the current directory and executed command in the title while a process is active.
 	prompt_pure_set_title 'ignore-escape' "$PWD:t: $2"
+	
+	[[ -t 1 ]] && builtin print -n '\e]133;C;\a'
 
 	# Disallow Python virtualenv from updating the prompt. Set it to 12 if
 	# untouched by the user to indicate that Pure modified it. Here we use
@@ -848,15 +850,17 @@ prompt_pure_setup() {
 		add-zle-hook-widget zle-keymap-select prompt_pure_update_vim_prompt_widget
 	fi
 
+	PROMPT=$'%{\e]133;A\a%}'
 	# If a virtualenv is activated, display it in grey.
-	PROMPT='%(12V.%F{$prompt_pure_colors[virtualenv]}%12v%f .)'
+	PROMPT+='%(12V.%F{$prompt_pure_colors[virtualenv]}%12v%f .)'
 
 	# Prompt turns red if the previous command didn't exit with 0.
 	local prompt_indicator='%(?.%F{$prompt_pure_colors[prompt:success]}.%F{$prompt_pure_colors[prompt:error]})${prompt_pure_state[prompt]}%f '
 	PROMPT+=$prompt_indicator
 
+	PROMPT2=$'%{\e]133;B\a%}'
 	# Indicate continuation prompt by … and use a darker color for it.
-	PROMPT2='%F{$prompt_pure_colors[prompt:continuation]}… %(1_.%_ .%_)%f'$prompt_indicator
+	PROMPT2+='%F{$prompt_pure_colors[prompt:continuation]}… %(1_.%_ .%_)%f'$prompt_indicator
 
 	# Store prompt expansion symbols for in-place expansion via (%). For
 	# some reason it does not work without storing them in a variable first.
